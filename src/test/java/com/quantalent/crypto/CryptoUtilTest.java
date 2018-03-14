@@ -17,6 +17,6 @@ public class CryptoUtilTest {
         String decrypted = cryptoUtil.decryptAes256(encrypted, "password");
 
         // Output
-        assertEquals(plain, decrypted);
+        assertEquals("Decrypted string different than before encrypted", plain, decrypted);
     }
 }

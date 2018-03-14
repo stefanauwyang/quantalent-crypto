@@ -11,6 +11,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+/**
+ * Utility class to perform cryptography functions.
+ *
+ * @author Auw Yang, Stefan
+ */
 public class CryptoUtil {
 
     private Logger logger = LoggerFactory.getLogger(CryptoUtil.class);
@@ -18,9 +23,9 @@ public class CryptoUtil {
     /**
      * Encrypt with 256 bit password using AES algorithm.
      *
-     * @param plain
-     * @param password
-     * @return
+     * @param plain plain input text
+     * @param password secret key
+     * @return encrypted text if successful; otherwise return null
      */
     public String encryptAes256(String plain, String password) {
         try {
@@ -31,17 +36,7 @@ public class CryptoUtil {
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] encrypted = cipher.doFinal(plain.getBytes("UTF-8"));
             return Base64.getEncoder().encodeToString(encrypted);
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(e.getMessage(), e);
-        } catch (NoSuchPaddingException e) {
-            logger.error(e.getMessage(), e);
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage(), e);
-        } catch (InvalidKeyException e) {
-            logger.error(e.getMessage(), e);
-        } catch (BadPaddingException e) {
-            logger.error(e.getMessage(), e);
-        } catch (IllegalBlockSizeException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
         return null;
@@ -50,9 +45,9 @@ public class CryptoUtil {
     /**
      * Decrypt with 256 bit password using AES algorithm.
      *
-     * @param encrypted
-     * @param password
-     * @return
+     * @param encrypted encrypted text
+     * @param password secret key
+     * @return decrypted text if successful; otherwise return null
      */
     public String decryptAes256(String encrypted, String password) {
         try {
@@ -63,17 +58,7 @@ public class CryptoUtil {
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypted));
             return new String(plain);
-        } catch (NoSuchAlgorithmException e) {
-            logger.error(e.getMessage(), e);
-        } catch (NoSuchPaddingException e) {
-            logger.error(e.getMessage(), e);
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage(), e);
-        } catch (InvalidKeyException e) {
-            logger.error(e.getMessage(), e);
-        } catch (BadPaddingException e) {
-            logger.error(e.getMessage(), e);
-        } catch (IllegalBlockSizeException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
         return null;
