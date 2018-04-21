@@ -3,26 +3,24 @@ package com.quantalent.crypto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.crypto.*;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 /**
- * Utility class to perform cryptography functions.
+ * Cryptography functions using SHA 256 algorithm.
  *
  * @author Auw Yang, Stefan
  */
-public class CryptoUtil {
+public class Sha256CryptoService implements CryptoService {
 
-    public static final String SHA_256 = "SHA-256";
-    public static final String AES = "AES";
-    public static final String UTF_8 = "UTF-8";
+    private static final String SHA_256 = "SHA-256";
+    private static final String AES = "AES";
+    private static final String UTF_8 = "UTF-8";
 
-    private Logger logger = LoggerFactory.getLogger(CryptoUtil.class);
+    private Logger logger = LoggerFactory.getLogger(Sha256CryptoService.class);
 
     /**
      * Encrypt with 256 bit password using AES algorithm.
@@ -31,7 +29,7 @@ public class CryptoUtil {
      * @param password secret key
      * @return encrypted text if successful; otherwise return null
      */
-    public String encryptAes256(String plain, String password) {
+    public String encrypt(String plain, String password) {
         try {
             MessageDigest md = MessageDigest.getInstance(SHA_256);
             byte[] key = md.digest(password.getBytes(UTF_8));
@@ -53,7 +51,7 @@ public class CryptoUtil {
      * @param password secret key
      * @return decrypted text if successful; otherwise return null
      */
-    public String decryptAes256(String encrypted, String password) {
+    public String decrypt(String encrypted, String password) {
         try {
             MessageDigest md = MessageDigest.getInstance(SHA_256);
             byte[] key = md.digest(password.getBytes(UTF_8));

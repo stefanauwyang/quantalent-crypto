@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class CryptoUtilTest {
+public class Sha256CryptoServiceTest {
 
     @Test
     public void testEncryptDecrypt() {
@@ -12,9 +12,9 @@ public class CryptoUtilTest {
         String plain = "Message before encryption";
 
         // Process
-        CryptoUtil cryptoUtil = new CryptoUtil();
-        String encrypted = cryptoUtil.encryptAes256(plain, "password");
-        String decrypted = cryptoUtil.decryptAes256(encrypted, "password");
+        CryptoService cryptoService = new Sha256CryptoService();
+        String encrypted = cryptoService.encrypt(plain, "password");
+        String decrypted = cryptoService.decrypt(encrypted, "password");
 
         // Output
         assertEquals("Decrypted string different than before encrypted", plain, decrypted);
