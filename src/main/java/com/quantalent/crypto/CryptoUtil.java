@@ -18,6 +18,10 @@ import java.util.Base64;
  */
 public class CryptoUtil {
 
+    public static final String SHA_256 = "SHA-256";
+    public static final String AES = "AES";
+    public static final String UTF_8 = "UTF-8";
+
     private Logger logger = LoggerFactory.getLogger(CryptoUtil.class);
 
     /**
@@ -29,12 +33,12 @@ public class CryptoUtil {
      */
     public String encryptAes256(String plain, String password) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] key = md.digest(password.getBytes("UTF-8"));
-            Cipher cipher = Cipher.getInstance("AES");
-            SecretKey secretKey = new SecretKeySpec(key, "AES");
+            MessageDigest md = MessageDigest.getInstance(SHA_256);
+            byte[] key = md.digest(password.getBytes(UTF_8));
+            Cipher cipher = Cipher.getInstance(AES);
+            SecretKey secretKey = new SecretKeySpec(key, AES);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            byte[] encrypted = cipher.doFinal(plain.getBytes("UTF-8"));
+            byte[] encrypted = cipher.doFinal(plain.getBytes(UTF_8));
             return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -51,10 +55,10 @@ public class CryptoUtil {
      */
     public String decryptAes256(String encrypted, String password) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] key = md.digest(password.getBytes("UTF-8"));
-            Cipher cipher = Cipher.getInstance("AES");
-            SecretKey secretKey = new SecretKeySpec(key, "AES");
+            MessageDigest md = MessageDigest.getInstance(SHA_256);
+            byte[] key = md.digest(password.getBytes(UTF_8));
+            Cipher cipher = Cipher.getInstance(AES);
+            SecretKey secretKey = new SecretKeySpec(key, AES);
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypted));
             return new String(plain);
