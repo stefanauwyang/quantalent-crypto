@@ -7,5 +7,8 @@ public class CryptoException extends BaseException {
     public CryptoException(String message) {
         super(message);
     }
+    public CryptoException(String message, Throwable e) {
+        super(message, e);
+    }
 
 }
