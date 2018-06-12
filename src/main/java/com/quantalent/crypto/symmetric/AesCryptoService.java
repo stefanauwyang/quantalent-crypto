@@ -56,7 +56,7 @@ public class AesCryptoService implements SymCryptoService {
      * Encrypt using AES algorithm with given password.
      *
      * @param plain plain input String
-     * @param password password input byte array (32 bytes)
+     * @param password password input byte array (128,192,256 bits / 16,24,32 bytes)
      * @return encrypted text if successful; otherwise return null
      */
     @Override
@@ -108,7 +108,7 @@ public class AesCryptoService implements SymCryptoService {
      * Decrypt using AES algorithm with given password.
      *
      * @param encrypted encrypted text
-     * @param password password input byte array (32 bytes)
+     * @param password password input byte array (128,192,256 bits / 16,24,32 bytes)
      * @return decrypted text if successful; otherwise return null
      */
     @Override

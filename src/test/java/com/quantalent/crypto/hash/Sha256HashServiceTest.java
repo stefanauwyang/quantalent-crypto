@@ -17,6 +17,6 @@ public class Sha256HashServiceTest {
         HashService hashService = new Sha256HashService();
         byte[] hash = hashService.hash(PLAIN);
         String hashResult = Base64.getEncoder().encodeToString(hash);
-        assertEquals("Test if sha256 calculated correctly", HASH, hashResult);
+        assertEquals("Test if Sha256 calculated correctly", HASH, hashResult);
     }
 }
