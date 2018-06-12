@@ -5,15 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.*;
 import java.util.Base64;
 
 /**
@@ -41,10 +40,10 @@ public class PkiHelper {
     /**
      * Load X.509 format PEM encoded Certificate
      *
-     * @param filePath path to certificate file
+     * @param path path to certificate file
      */
-    public void loadX509Certificate(String filePath) {
-        File file = new File(filePath);
+    public void loadX509CertFromFilePath(String path) {
+        File file = new File(path);
         if (file.exists()) {
             FileInputStream is = null;
             try {
@@ -71,10 +70,10 @@ public class PkiHelper {
     /**
      * Load PKCS8 format PEM encoded private key
      *
-     * @param filePath path to private key file
+     * @param path path to private key file
      */
-    public void loadPrivateKey(String filePath) {
-        File file = new File(filePath);
+    public void loadPrivateKeyFromFilePath(String path) {
+        File file = new File(path);
         if (file.exists()) {
             FileInputStream is = null;
             try {
@@ -91,7 +90,7 @@ public class PkiHelper {
                 byte[] b = Base64.getDecoder().decode(sb.toString());
                 PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(b);
                 privateKey = (RSAPrivateKey) KeyFactory.getInstance(Algorithm.KEY_RSA.getValue()).generatePrivate(spec);
-                logger.debug("Private key loaded", sb.toString());
+                logger.debug("Private key loaded");
             } catch (FileNotFoundException e) {
                 logger.debug("Certificate file not found");
                 logger.error(e.getMessage(), e);
@@ -115,10 +114,10 @@ public class PkiHelper {
     /**
      * Load X.509 format PEM encoded public key
      *
-     * @param filePath path to public key file
+     * @param path path to public key file
      */
-    public void loadPublicKey(String filePath) {
-        File file = new File(filePath);
+    public void loadPublicKeyFromFilePath(String path) {
+        File file = new File(path);
         if (file.exists()) {
             FileInputStream is = null;
             try {
@@ -135,7 +134,7 @@ public class PkiHelper {
                 byte[] b = Base64.getDecoder().decode(sb.toString());
                 X509EncodedKeySpec spec = new X509EncodedKeySpec(b);
                 publicKey = (RSAPublicKey) KeyFactory.getInstance(Algorithm.KEY_RSA.getValue()).generatePublic(spec);
-                logger.debug("Public key loaded", sb.toString());
+                logger.debug("Public key loaded");
             } catch (FileNotFoundException e) {
                 logger.debug("Certificate file not found");
                 logger.error(e.getMessage(), e);
@@ -154,6 +153,48 @@ public class PkiHelper {
                 }
             }
         }
+    }
+
+    /**
+     * Load modulus and exponent into PrivateKey
+     *
+     * @param modulus private key modulus
+     * @param exponent private key exponent
+     */
+    public void loadPrivateKey(BigInteger modulus, BigInteger exponent) {
+        logger.debug("Load private key from modulus & exponent");
+        RSAPrivateKeySpec spec = new RSAPrivateKeySpec(modulus, exponent);
+        try {
+            privateKey = (RSAPrivateKey) KeyFactory.getInstance(Algorithm.KEY_RSA.getValue()).generatePrivate(spec);
+        } catch (InvalidKeySpecException e) {
+            logger.debug("Unable to generate private key from KeySpec");
+            logger.error(e.getMessage(), e);
+        } catch (NoSuchAlgorithmException e) {
+            logger.debug("Unable to get instance of RSA algorithm");
+            logger.error(e.getMessage(), e);
+        }
+        logger.debug("Private key loaded");
+    }
+
+    /**
+     * Load modulus and exponent into PublicKey
+     *
+     * @param modulus public key modulus
+     * @param exponent public key exponent
+     */
+    public void loadPublicKey(BigInteger modulus, BigInteger exponent) {
+        logger.debug("Load public key from modulus & exponent");
+        RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
+        try {
+            publicKey = (RSAPublicKey) KeyFactory.getInstance(Algorithm.KEY_RSA.getValue()).generatePublic(spec);
+        } catch (InvalidKeySpecException e) {
+            logger.debug("Unable to generate public key from KeySpec");
+            logger.error(e.getMessage(), e);
+        } catch (NoSuchAlgorithmException e) {
+            logger.debug("Unable to get instance of RSA algorithm");
+            logger.error(e.getMessage(), e);
+        }
+        logger.debug("Public key loaded");
     }
 
     /**

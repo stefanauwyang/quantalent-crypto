@@ -60,8 +60,8 @@ public class RsaAsymCryptoService extends BaseAsymCryptoService {
             }
 
             int outputSize = cipher.getOutputSize(plainText.length);
-            int leavedSize = plainText.length % blockSize;
-            int blocksSize = leavedSize != 0 ? plainText.length / blockSize + 1 : plainText.length / blockSize;
+            int lastSize = plainText.length % blockSize;
+            int blocksSize = lastSize != 0 ? plainText.length / blockSize + 1 : plainText.length / blockSize;
 
             cipherText = new byte[outputSize * blocksSize];
             int i = 0;
@@ -131,7 +131,7 @@ public class RsaAsymCryptoService extends BaseAsymCryptoService {
 
     private Cipher getCipherInstance() throws CryptoException {
         try {
-            if (getAlgorithm() == null) {
+            if (getProvider() == null) {
                 return Cipher.getInstance(getAlgorithm());
             } else {
                 return Cipher.getInstance(getAlgorithm(), getProvider());
