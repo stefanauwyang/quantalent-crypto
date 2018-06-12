@@ -13,7 +13,7 @@ public class Sha256HashServiceTest {
     private static final String HASH = "GF+NsyJx/iX1Yab8k4suJkMG7DBO2lGAB9F2SCY4GWk=";
 
     @Test
-    public void testHash() {
+    public void hash() {
         HashService hashService = new Sha256HashService();
         byte[] hash = hashService.hash(PLAIN);
         String hashResult = Base64.getEncoder().encodeToString(hash);
