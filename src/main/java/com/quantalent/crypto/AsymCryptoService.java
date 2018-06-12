@@ -1,5 +1,11 @@
 package com.quantalent.crypto;
 
+import com.quantalent.crypto.exception.CryptoException;
+
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
 /**
  * Asymmetric cryptography functions.
  *
@@ -9,40 +15,26 @@ public interface AsymCryptoService {
 
     /**
      * Encrypt using asymmetric encryption algorithm.
-     * Password will be converted into sha256 before used.
+     * @see AsymCryptoService#setPublicKey(PublicKey)
      *
-     * @param plain plain input String
-     * @param password password input String
-     * @return encrypted text if successful; otherwise return null
+     * @param plainText plain input bytes
+     * @return encrypted bytes if successful; otherwise return null
      */
-    String encrypt(String plain, String password);
-
-    /**
-     * Encrypt using asymmetric encryption algorithm.
-     *
-     * @param plain plain input String
-     * @param password password input byte array
-     * @return encrypted text if successful; otherwise return null
-     */
-    String encrypt(String plain, byte[] password);
+    byte[] encrypt(byte[] plainText) throws CryptoException;
 
     /**
      * Decrypt using asymmetric encryption algorithm.
-     * Password will be converted into sha256 before used.
+     * @see AsymCryptoService#setPrivateKey(PrivateKey)
      *
-     * @param encrypted encrypted text
-     * @param password password input String
-     * @return decrypted text if successful; otherwise return null
+     * @param cipherText encrypted bytes
+     * @return decrypted bytes if successful; otherwise return null
      */
-    String decrypt(String encrypted, String password);
+    byte[] decrypt(byte[] cipherText) throws CryptoException;
 
-    /**
-     * Decrypt using asymmetric encryption algorithm.
-     *
-     * @param encrypted encrypted text
-     * @param password password input byte array
-     * @return decrypted text if successful; otherwise return null
-     */
-    String decrypt(String encrypted, byte[] password);
+    void setKeyPair(KeyPair keyPair);
+
+    void setPrivateKey(PrivateKey privateKey);
+
+    void setPublicKey(PublicKey publicKey);
 
 }

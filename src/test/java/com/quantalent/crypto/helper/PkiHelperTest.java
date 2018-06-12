@@ -1,8 +1,8 @@
-package com.quantalent.crypto.handler;
+package com.quantalent.crypto.helper;
 
 import org.junit.Test;
 
-public class PkiHandlerTest {
+public class PkiHelperTest {
     @Test
     public void loadX509Certificate() {
     }

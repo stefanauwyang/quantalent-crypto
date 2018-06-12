@@ -1,5 +1,6 @@
 package com.quantalent.crypto.symmetric;
 
+import com.quantalent.crypto.Algorithm;
 import com.quantalent.crypto.HashService;
 import com.quantalent.crypto.SymCryptoService;
 import com.quantalent.crypto.exception.CryptoRuntimeException;
@@ -21,10 +22,10 @@ import java.util.Base64;
 public class AesCryptoService implements SymCryptoService {
 
     private static final String UTF_8 = "UTF-8";
-    private static final String AES = "AES";
     private static final int MAX_PWD_BYTE_SIZE = 32; // 32 bytes = 256 bits
 
     private Logger logger = LoggerFactory.getLogger(AesCryptoService.class);
+    private Algorithm algorithm = Algorithm.KEY_AES;
 
     /**
      * Encrypt using AES algorithm with given password.
@@ -42,8 +43,8 @@ public class AesCryptoService implements SymCryptoService {
             HashService hashService = new Sha256HashService();
             logger.debug("Calculate Sha256 from password");
             byte[] key = hashService.hash(password);
-            Cipher cipher = Cipher.getInstance(AES);
-            SecretKey secretKey = new SecretKeySpec(key, AES);
+            Cipher cipher = Cipher.getInstance(algorithm.getValue());
+            SecretKey secretKey = new SecretKeySpec(key, algorithm.getValue());
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] encrypted = cipher.doFinal(plain.getBytes(UTF_8));
             logger.debug("Success encrypt using AES");
@@ -66,11 +67,11 @@ public class AesCryptoService implements SymCryptoService {
         logger.debug("Encrypting using AES...");
         if (password == null || password.length == 0) throw new CryptoRuntimeException("Password not present");
         try {
-            Cipher cipher = Cipher.getInstance(AES);
+            Cipher cipher = Cipher.getInstance(algorithm.getValue());
             // Truncate if password is more than max key bit size
             if (password.length > MAX_PWD_BYTE_SIZE ) logger.warn("Password length is more than {}. Truncating...", MAX_PWD_BYTE_SIZE);
             byte[] passwordToBeUsed = Arrays.copyOf(password, password.length > MAX_PWD_BYTE_SIZE ? MAX_PWD_BYTE_SIZE : password.length);
-            SecretKey secretKey = new SecretKeySpec(passwordToBeUsed, AES);
+            SecretKey secretKey = new SecretKeySpec(passwordToBeUsed, algorithm.getValue());
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] encrypted = cipher.doFinal(plain.getBytes(UTF_8));
             logger.debug("Success encrypt using AES");
@@ -97,8 +98,8 @@ public class AesCryptoService implements SymCryptoService {
             HashService hashService = new Sha256HashService();
             logger.debug("Calculate Sha256 from password");
             byte[] key = hashService.hash(password);
-            Cipher cipher = Cipher.getInstance(AES);
-            SecretKey secretKey = new SecretKeySpec(key, AES);
+            Cipher cipher = Cipher.getInstance(algorithm.getValue());
+            SecretKey secretKey = new SecretKeySpec(key, algorithm.getValue());
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypted));
             logger.debug("Success decrypt using AES");
@@ -121,11 +122,11 @@ public class AesCryptoService implements SymCryptoService {
         logger.debug("Decrypting using AES...");
         if (password == null || password.length == 0) throw new CryptoRuntimeException("Password not present");
         try {
-            Cipher cipher = Cipher.getInstance(AES);
+            Cipher cipher = Cipher.getInstance(algorithm.getValue());
             // Truncate if password is more than max key bit size
             if (password.length > MAX_PWD_BYTE_SIZE ) logger.warn("Password length is more than {}. Truncating...", MAX_PWD_BYTE_SIZE);
             byte[] passwordToBeUsed = Arrays.copyOf(password, password.length > MAX_PWD_BYTE_SIZE ? MAX_PWD_BYTE_SIZE : password.length);
-            SecretKey secretKey = new SecretKeySpec(passwordToBeUsed, AES);
+            SecretKey secretKey = new SecretKeySpec(passwordToBeUsed, algorithm.getValue());
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypted));
             logger.debug("Success decrypt using AES");
