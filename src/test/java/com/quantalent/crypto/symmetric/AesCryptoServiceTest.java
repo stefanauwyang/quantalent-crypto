@@ -31,7 +31,7 @@ public class AesCryptoServiceTest {
      *
      */
     @Test
-    public void testEncryptDecryptAesWithPasswordBytesAes256Bit() {
+    public void testEncryptDecryptAesWithPasswordBytesAes256BitPassword() {
         HashService hashService = new Sha256HashService();
         byte[] passwordBytes256Bit = hashService.hash(passwordString);
 
@@ -39,6 +39,23 @@ public class AesCryptoServiceTest {
         SymCryptoService symCryptoService = new AesCryptoService();
         String encrypted = symCryptoService.encrypt(plain, passwordBytes256Bit);
         String decrypted = symCryptoService.decrypt(encrypted, passwordBytes256Bit);
+
+        // Output
+        assertEquals("Decrypted bytes different than before encrypted", plain, decrypted);
+    }
+
+    /**
+     * Test encrypt with password byte array exceed max size.
+     *
+     */
+    @Test
+    public void testEncryptDecryptAesWithPasswordBytesAesMax256BitPassword() {
+        byte[] passwordBytes512Bit = new byte[64];
+
+        // Process
+        SymCryptoService symCryptoService = new AesCryptoService();
+        String encrypted = symCryptoService.encrypt(plain, passwordBytes512Bit);
+        String decrypted = symCryptoService.decrypt(encrypted, passwordBytes512Bit);
 
         // Output
         assertEquals("Decrypted bytes different than before encrypted", plain, decrypted);
