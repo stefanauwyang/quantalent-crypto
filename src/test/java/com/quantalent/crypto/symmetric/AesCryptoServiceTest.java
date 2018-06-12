@@ -1,10 +1,11 @@
-package com.quantalent.crypto;
+package com.quantalent.crypto.symmetric;
 
+import com.quantalent.crypto.SymCryptoService;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class CryptoServiceImplTest {
+public class AesCryptoServiceTest {
     private static final String plain = "Message before encryption";
     private static final String passwordString = "P@ssw0rd1!";
     private static final byte[] passwordBytes = new byte[32];
@@ -16,9 +17,9 @@ public class CryptoServiceImplTest {
     @Test
     public void testEncryptDecryptAesWithPasswordString() {
         // Process
-        CryptoService cryptoService = new CryptoServiceImpl();
-        String encrypted = cryptoService.encryptAes(plain, passwordString);
-        String decrypted = cryptoService.decryptAes(encrypted, passwordString);
+        SymCryptoService symCryptoService = new AesCryptoService();
+        String encrypted = symCryptoService.encrypt(plain, passwordString);
+        String decrypted = symCryptoService.decrypt(encrypted, passwordString);
 
         // Output
         assertEquals("Decrypted string different than before encrypted", plain, decrypted);
@@ -31,9 +32,9 @@ public class CryptoServiceImplTest {
     @Test
     public void testEncryptDecryptAesWithPasswordBytes() {
         // Process
-        CryptoService cryptoService = new CryptoServiceImpl();
-        String encrypted = cryptoService.encryptAes(plain, passwordBytes);
-        String decrypted = cryptoService.decryptAes(encrypted, passwordBytes);
+        SymCryptoService symCryptoService = new AesCryptoService();
+        String encrypted = symCryptoService.encrypt(plain, passwordBytes);
+        String decrypted = symCryptoService.decrypt(encrypted, passwordBytes);
 
         // Output
         assertEquals("Decrypted bytes different than before encrypted", plain, decrypted);
