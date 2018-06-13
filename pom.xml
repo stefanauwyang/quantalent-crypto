@@ -22,9 +22,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.quantalent</groupId>
+            <groupId>com.quantalent.commons</groupId>
             <artifactId>quantalent-commons</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
