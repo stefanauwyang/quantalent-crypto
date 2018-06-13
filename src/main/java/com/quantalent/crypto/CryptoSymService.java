@@ -5,10 +5,10 @@ package com.quantalent.crypto;
  *
  * @author Auw Yang, Stefan
  */
-public interface SymCryptoService {
+public interface CryptoSymService {
 
     /**
-     * Encrypt using symmetric encryption algorithm with given password.
+     * Encrypt using sym encryption algorithm with given password.
      * Password will be converted into sha256 before used.
      *
      * @param plain plain input String
@@ -18,7 +18,7 @@ public interface SymCryptoService {
     String encrypt(String plain, String password);
 
     /**
-     * Encrypt using symmetric encryption algorithm with given password.
+     * Encrypt using sym encryption algorithm with given password.
      *
      * @param plain plain input String
      * @param password password input byte array
@@ -27,7 +27,7 @@ public interface SymCryptoService {
     String encrypt(String plain, byte[] password);
 
     /**
-     * Decrypt using symmetric encryption algorithm with given password.
+     * Decrypt using sym encryption algorithm with given password.
      * Password will be converted into sha256 before used.
      *
      * @param encrypted encrypted text
@@ -37,7 +37,7 @@ public interface SymCryptoService {
     String decrypt(String encrypted, String password);
 
     /**
-     * Decrypt using symmetric encryption algorithm with given password.
+     * Decrypt using sym encryption algorithm with given password.
      *
      * @param encrypted encrypted text
      * @param password password input byte array

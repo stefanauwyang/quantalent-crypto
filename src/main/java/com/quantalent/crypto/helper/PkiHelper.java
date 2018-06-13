@@ -1,12 +1,13 @@
 package com.quantalent.crypto.helper;
 
-import com.quantalent.crypto.Algorithm;
+import com.quantalent.crypto.model.Algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.security.*;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -195,75 +196,6 @@ public class PkiHelper {
             logger.error(e.getMessage(), e);
         }
         logger.debug("Public key loaded");
-    }
-
-    /**
-     * Verifying text against base64 url encoded signature using publicKey.
-     * @see PkiHelper#verifySignature(RSAPublicKey, String, String)
-     * @see PkiHelper#setPublicKey(RSAPublicKey)
-     * @see PkiHelper#verifySignature(byte[], byte[])
-     *
-     * @param text to be verified against signature using publicKey
-     * @param signature base64 url encoded (-_ instead of +/), to be verified against text using publicKey
-     */
-    public boolean verifySignature(String text, String signature) {
-        byte[] urlDecodedSignature = Base64.getUrlDecoder().decode(signature);
-        return verifySignature(text.getBytes(), urlDecodedSignature);
-    }
-
-    /**
-     * Verifying text against base64 url encoded signature using publicKey.
-     * @see PkiHelper#verifySignature(String, String)
-     * @see PkiHelper#setPublicKey(RSAPublicKey)
-     * @see PkiHelper#verifySignature(byte[], byte[])
-     *
-     * @param publicKey to verify signature of a text
-     * @param text to be verified against signature using publicKey
-     * @param signature base64 url encoded (-_ instead of +/), to be verified against text using publicKey
-     */
-    public boolean verifySignature(RSAPublicKey publicKey, String text, String signature) {
-        byte[] urlDecodedSignature = Base64.getUrlDecoder().decode(signature);
-        return verifySignature(publicKey, text.getBytes(), urlDecodedSignature);
-    }
-
-    /**
-     * Verifying bytes text against bytes signature using publicKey.
-     * @see PkiHelper#setPublicKey(RSAPublicKey)
-     * @see PkiHelper#verifySignature(RSAPublicKey, byte[], byte[])
-     *
-     * @param text to be verified against signature using publicKey
-     * @param signature to be verified against text using publicKey
-     */
-    public boolean verifySignature(byte[] text, byte[] signature) {
-        return verifySignature(publicKey, text, signature);
-    }
-
-    /**
-     * Verifying bytes text against bytes signature using publicKey.
-     *
-     * @param publicKey to verify signature of a text
-     * @param text to be verified against signature using publicKey
-     * @param signature to be verified against text using publicKey
-     */
-    public boolean verifySignature(RSAPublicKey publicKey, byte[] text, byte[] signature) {
-        boolean verify = false;
-        Signature sig;
-        try {
-            sig = Signature.getInstance(Algorithm.SIGN_SHA256withRSA.getValue());
-            sig.initVerify(publicKey);
-            sig.update(text);
-            verify = sig.verify(signature);
-        } catch (NoSuchAlgorithmException e) {
-            logger.debug("Unable to get Signature instance using {}", Algorithm.SIGN_SHA256withRSA.getValue());
-            logger.error(e.getMessage(), e);
-        } catch (InvalidKeyException e) {
-            logger.debug("Unable to use public key");
-            logger.error(e.getMessage(), e);
-        } catch (SignatureException e) {
-            logger.debug("Unable to update text / verify signature. Signature not initialized properly.");
-            logger.error(e.getMessage(), e);
-        }
-        return verify;
     }
 
     public X509Certificate getCertificate() {
