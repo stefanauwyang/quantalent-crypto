@@ -1,13 +1,23 @@
 package com.quantalent.crypto.helper;
 
+import com.quantalent.crypto.exception.CryptoRuntimeException;
 import com.quantalent.crypto.model.Algorithm;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMDecryptorProvider;
+import org.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.math.BigInteger;
 import java.security.KeyFactory;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -38,6 +48,10 @@ public class PkiHelper {
     private RSAPublicKey publicKey;
     private RSAPrivateKey privateKey;
 
+    public PkiHelper() {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     /**
      * Load X.509 format PEM encoded Certificate
      *
@@ -55,11 +69,11 @@ public class PkiHelper {
                 publicKey = (RSAPublicKey) certificate.getPublicKey();
                 logger.debug("Public key extracted from certificate");
             } catch (FileNotFoundException e) {
-                logger.debug("Certificate file not found");
-                logger.error(e.getMessage(), e);
+                logger.debug("Certificate file not found.");
+                throw new CryptoRuntimeException("Certificate file not found.", e);
             } catch (CertificateException e) {
-                logger.debug("Unable to generate X509 certificate from certificate file");
-                logger.error(e.getMessage(), e);
+                logger.debug("Unable to generate X509 certificate from certificate file.");
+                throw new CryptoRuntimeException("Unable to generate X509 certificate from certificate file.", e);
             } finally {
                 if (is != null) {
                     try { is.close(); } catch (IOException e) { }
@@ -93,22 +107,46 @@ public class PkiHelper {
                 privateKey = (RSAPrivateKey) KeyFactory.getInstance(Algorithm.KEY_RSA.getValue()).generatePrivate(spec);
                 logger.debug("Private key loaded");
             } catch (FileNotFoundException e) {
-                logger.debug("Certificate file not found");
-                logger.error(e.getMessage(), e);
+                logger.debug("Certificate file not found.");
+                throw new CryptoRuntimeException("Certificate file not found.", e);
             } catch (IOException e) {
-                logger.debug("Unable to read certificate file");
-                logger.error(e.getMessage(), e);
+                logger.debug("Unable to read certificate file.");
+                throw new CryptoRuntimeException("Unable to read certificate file.", e);
             } catch (NoSuchAlgorithmException e) {
-                logger.debug("Unable to get instance of RSA algorithm");
-                logger.error(e.getMessage(), e);
+                logger.debug("Unable to get instance of RSA algorithm.");
+                throw new CryptoRuntimeException("Unable to get instance of RSA algorithm.", e);
             } catch (InvalidKeySpecException e) {
-                logger.debug("Unable to generate private key from KeySpec");
-                logger.error(e.getMessage(), e);
+                logger.debug("Unable to generate private key from KeySpec.");
+                throw new CryptoRuntimeException("Unable to generate private key from KeySpec.", e);
             } finally {
                 if (is != null) {
                     try { is.close(); } catch (IOException e) { }
                 }
             }
+        }
+    }
+
+    public void loadEncryptedKeyPairFromFilePath(String path, String password) {
+        try {
+            // Read key pair file
+            PEMParser pemParser = new PEMParser(new FileReader(path));
+            Object object = pemParser.readObject();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+
+            KeyPair kp;
+            if (object instanceof PEMEncryptedKeyPair) {
+                PEMEncryptedKeyPair ckp = (PEMEncryptedKeyPair) object;
+                PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder().build(password.toCharArray());
+                kp = converter.getKeyPair(ckp.decryptKeyPair(decProv));
+            } else {
+                PEMKeyPair ukp = (PEMKeyPair) object;
+                kp = converter.getKeyPair(ukp);
+            }
+
+            this.privateKey = (RSAPrivateKey) kp.getPrivate();
+            this.publicKey = (RSAPublicKey) kp.getPublic();
+        } catch (Exception e) {
+            throw new CryptoRuntimeException("Unable to read password encrypted key pair.", e);
         }
     }
 
@@ -137,17 +175,17 @@ public class PkiHelper {
                 publicKey = (RSAPublicKey) KeyFactory.getInstance(Algorithm.KEY_RSA.getValue()).generatePublic(spec);
                 logger.debug("Public key loaded");
             } catch (FileNotFoundException e) {
-                logger.debug("Certificate file not found");
-                logger.error(e.getMessage(), e);
+                logger.debug("Certificate file not found.");
+                throw new CryptoRuntimeException("Certificate file not found.", e);
             } catch (IOException e) {
-                logger.debug("Unable to read certificate file");
-                logger.error(e.getMessage(), e);
+                logger.debug("Unable to read certificate file.");
+                throw new CryptoRuntimeException("Unable to read certificate file.", e);
             } catch (NoSuchAlgorithmException e) {
-                logger.debug("Unable to get instance of RSA algorithm");
-                logger.error(e.getMessage(), e);
+                logger.debug("Unable to get instance of RSA algorithm.");
+                throw new CryptoRuntimeException("Unable to get instance of RSA algorithm.", e);
             } catch (InvalidKeySpecException e) {
-                logger.debug("Unable to generate public key from KeySpec");
-                logger.error(e.getMessage(), e);
+                logger.debug("Unable to generate public key from KeySpec.");
+                throw new CryptoRuntimeException("Unable to generate public key from KeySpec.", e);
             } finally {
                 if (is != null) {
                     try { is.close(); } catch (IOException e) { }
@@ -168,11 +206,11 @@ public class PkiHelper {
         try {
             privateKey = (RSAPrivateKey) KeyFactory.getInstance(Algorithm.KEY_RSA.getValue()).generatePrivate(spec);
         } catch (InvalidKeySpecException e) {
-            logger.debug("Unable to generate private key from KeySpec");
-            logger.error(e.getMessage(), e);
+            logger.debug("Unable to generate private key from KeySpec.");
+            throw new CryptoRuntimeException("Unable to generate private key from KeySpec.", e);
         } catch (NoSuchAlgorithmException e) {
             logger.debug("Unable to get instance of RSA algorithm");
-            logger.error(e.getMessage(), e);
+            throw new CryptoRuntimeException("Unable to get instance of RSA algorithm", e);
         }
         logger.debug("Private key loaded");
     }
@@ -189,11 +227,11 @@ public class PkiHelper {
         try {
             publicKey = (RSAPublicKey) KeyFactory.getInstance(Algorithm.KEY_RSA.getValue()).generatePublic(spec);
         } catch (InvalidKeySpecException e) {
-            logger.debug("Unable to generate public key from KeySpec");
-            logger.error(e.getMessage(), e);
+            logger.debug("Unable to generate public key from KeySpec.");
+            throw new CryptoRuntimeException("Unable to generate public key from KeySpec", e);
         } catch (NoSuchAlgorithmException e) {
-            logger.debug("Unable to get instance of RSA algorithm");
-            logger.error(e.getMessage(), e);
+            logger.debug("Unable to get instance of RSA algorithm.");
+            throw new CryptoRuntimeException("Unable to get instance of RSA algorithm.", e);
         }
         logger.debug("Public key loaded");
     }
