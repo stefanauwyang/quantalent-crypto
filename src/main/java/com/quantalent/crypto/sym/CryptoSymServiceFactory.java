@@ -27,6 +27,7 @@ public class CryptoSymServiceFactory implements CryptoSymService {
     private Logger logger = LoggerFactory.getLogger(CryptoSymServiceFactory.class);
 
     private static final String UTF_8 = "UTF-8";
+    private static final String ANSI = "Cp1252";
     private static final int MAX_PWD_BYTE_SIZE = 32; // 32 bytes = 256 bits
 
     private String algorithm;
@@ -85,7 +86,7 @@ public class CryptoSymServiceFactory implements CryptoSymService {
      * @return encrypted text if successful; otherwise return null
      */
     @Override
-    public String encrypt(String plain, String password) {
+    public String encryptFromString(String plain, String password) {
         logger.info("Encrypting using AES...");
         if (password == null || password.length() == 0) throw new CryptoRuntimeException("Password not present");
         try {
@@ -112,7 +113,7 @@ public class CryptoSymServiceFactory implements CryptoSymService {
      * @return encrypted text if successful; otherwise return null
      */
     @Override
-    public String encrypt(String plain, byte[] password) {
+    public String encryptFromString(String plain, byte[] password) {
         logger.info("Encrypting using AES...");
         if (password == null || password.length == 0) throw new CryptoRuntimeException("Password not present");
         try {
@@ -132,6 +133,61 @@ public class CryptoSymServiceFactory implements CryptoSymService {
     }
 
     /**
+     * Encrypt byte array using AES algorithm with given password.
+     * Password will be converted into sha256 before used.
+     *
+     * @param plain plain input byte array
+     * @param password password input String
+     * @return encrypted text if successful; otherwise return null
+     */
+    @Override
+    public String encrypt(byte[] plain, String password) {
+        logger.info("Encrypting using AES...");
+        if (password == null || password.length() == 0) throw new CryptoRuntimeException("Password not present");
+        try {
+            HashService hashService = HashServiceFactory.getInstance(Algorithm.HASH_SHA_256.getValue());
+            logger.info("Calculate Sha256 from password");
+            byte[] key = hashService.hash(password);
+            Cipher cipher = getCipherInstance();
+            SecretKey secretKey = new SecretKeySpec(key, algorithm);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encrypted = cipher.doFinal(plain);
+            logger.info("Success encrypt using AES");
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception e) {
+            logger.error("Fail encrypt using AES");
+            throw new CryptoRuntimeException("Not able to do AES encryption", e);
+        }
+    }
+
+    /**
+     * Encrypt byte array using AES algorithm with given password.
+     *
+     * @param plain plain input byte array
+     * @param password password input byte array (128,192,256 bits / 16,24,32 bytes)
+     * @return encrypted text if successful; otherwise return null
+     */
+    @Override
+    public String encrypt(byte[] plain, byte[] password) {
+        logger.info("Encrypting using AES...");
+        if (password == null || password.length == 0) throw new CryptoRuntimeException("Password not present");
+        try {
+            Cipher cipher = Cipher.getInstance(algorithm);
+            // Truncate if password is more than max key bit size
+            if (password.length > MAX_PWD_BYTE_SIZE ) logger.warn("Password length is more than {}. Truncating...", MAX_PWD_BYTE_SIZE);
+            byte[] passwordToBeUsed = Arrays.copyOf(password, password.length > MAX_PWD_BYTE_SIZE ? MAX_PWD_BYTE_SIZE : password.length);
+            SecretKey secretKey = new SecretKeySpec(passwordToBeUsed, algorithm);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encrypted = cipher.doFinal(plain);
+            logger.info("Success encrypt using AES");
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception e) {
+            logger.error("Fail encrypt using AES");
+            throw new CryptoRuntimeException("Not able to do AES encryption", e);
+        }
+    }
+
+    /**
      * Decrypt using AES algorithm with given password.
      * Password will be converted into sha256 before used.
      *
@@ -140,7 +196,7 @@ public class CryptoSymServiceFactory implements CryptoSymService {
      * @return decrypted text if successful; otherwise return null
      */
     @Override
-    public String decrypt(String encrypted, String password) {
+    public String decryptToString(String encrypted, String password) {
         logger.info("Decrypting using AES...");
         if (password == null || password.length() == 0) throw new CryptoRuntimeException("Password not present");
         try {
@@ -167,7 +223,7 @@ public class CryptoSymServiceFactory implements CryptoSymService {
      * @return decrypted text if successful; otherwise return null
      */
     @Override
-    public String decrypt(String encrypted, byte[] password) {
+    public String decryptToString(String encrypted, byte[] password) {
         logger.info("Decrypting using AES...");
         if (password == null || password.length == 0) throw new CryptoRuntimeException("Password not present");
         try {
@@ -180,6 +236,61 @@ public class CryptoSymServiceFactory implements CryptoSymService {
             byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypted));
             logger.info("Success decrypt using AES");
             return new String(plain);
+        } catch (Exception e) {
+            logger.error("Fail decrypt using AES");
+            throw new CryptoRuntimeException("Not able to do AES decryption", e);
+        }
+    }
+
+    /**
+     * Decrypt using AES algorithm with given password.
+     * Password will be converted into sha256 before used.
+     *
+     * @param encrypted encrypted text
+     * @param password password input String
+     * @return decrypted byte array if successful; otherwise return null
+     */
+    @Override
+    public byte[] decrypt(String encrypted, String password) {
+        logger.info("Decrypting using AES...");
+        if (password == null || password.length() == 0) throw new CryptoRuntimeException("Password not present");
+        try {
+            HashService hashService = HashServiceFactory.getInstance(Algorithm.HASH_SHA_256.getValue());
+            logger.info("Calculate Sha256 from password");
+            byte[] key = hashService.hash(password);
+            Cipher cipher = Cipher.getInstance(algorithm);
+            SecretKey secretKey = new SecretKeySpec(key, algorithm);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+            logger.info("Success decrypt using AES");
+            return plain;
+        } catch (Exception e) {
+            logger.error("Fail decrypt using AES");
+            throw new CryptoRuntimeException("Not able to do AES decryption", e);
+        }
+    }
+
+    /**
+     * Decrypt using AES algorithm with given password.
+     *
+     * @param encrypted encrypted text
+     * @param password password input byte array (128,192,256 bits / 16,24,32 bytes)
+     * @return decrypted byte array if successful; otherwise return null
+     */
+    @Override
+    public byte[] decrypt(String encrypted, byte[] password) {
+        logger.info("Decrypting using AES...");
+        if (password == null || password.length == 0) throw new CryptoRuntimeException("Password not present");
+        try {
+            Cipher cipher = Cipher.getInstance(algorithm);
+            // Truncate if password is more than max key bit size
+            if (password.length > MAX_PWD_BYTE_SIZE ) logger.warn("Password length is more than {}. Truncating...", MAX_PWD_BYTE_SIZE);
+            byte[] passwordToBeUsed = Arrays.copyOf(password, password.length > MAX_PWD_BYTE_SIZE ? MAX_PWD_BYTE_SIZE : password.length);
+            SecretKey secretKey = new SecretKeySpec(passwordToBeUsed, algorithm);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+            logger.info("Success decrypt using AES");
+            return plain;
         } catch (Exception e) {
             logger.error("Fail decrypt using AES");
             throw new CryptoRuntimeException("Not able to do AES decryption", e);

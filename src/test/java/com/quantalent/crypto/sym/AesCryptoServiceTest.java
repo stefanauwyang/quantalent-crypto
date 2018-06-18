@@ -19,8 +19,8 @@ public class AesCryptoServiceTest {
     public void testEncryptDecryptAesWithPasswordString() {
         // Process
         CryptoSymService cryptoSymService = CryptoSymServiceFactory.getInstance();
-        String encrypted = cryptoSymService.encrypt(plain, passwordString);
-        String decrypted = cryptoSymService.decrypt(encrypted, passwordString);
+        String encrypted = cryptoSymService.encryptFromString(plain, passwordString);
+        String decrypted = cryptoSymService.decryptToString(encrypted, passwordString);
 
         // Output
         assertEquals("Decrypted string different than before encrypted", plain, decrypted);
@@ -37,8 +37,8 @@ public class AesCryptoServiceTest {
 
         // Process
         CryptoSymService cryptoSymService = CryptoSymServiceFactory.getInstance();
-        String encrypted = cryptoSymService.encrypt(plain, passwordBytes256Bit);
-        String decrypted = cryptoSymService.decrypt(encrypted, passwordBytes256Bit);
+        String encrypted = cryptoSymService.encryptFromString(plain, passwordBytes256Bit);
+        String decrypted = cryptoSymService.decryptToString(encrypted, passwordBytes256Bit);
 
         // Output
         assertEquals("Decrypted bytes different than before encrypted", plain, decrypted);
@@ -54,8 +54,8 @@ public class AesCryptoServiceTest {
 
         // Process
         CryptoSymService cryptoSymService = CryptoSymServiceFactory.getInstance();
-        String encrypted = cryptoSymService.encrypt(plain, passwordBytes512Bit);
-        String decrypted = cryptoSymService.decrypt(encrypted, passwordBytes512Bit);
+        String encrypted = cryptoSymService.encryptFromString(plain, passwordBytes512Bit);
+        String decrypted = cryptoSymService.decryptToString(encrypted, passwordBytes512Bit);
 
         // Output
         assertEquals("Decrypted bytes different than before encrypted", plain, decrypted);
