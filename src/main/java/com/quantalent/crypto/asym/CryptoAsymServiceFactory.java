@@ -76,6 +76,7 @@ public class CryptoAsymServiceFactory implements CryptoAsymService {
      */
     @Override
     public byte[] encrypt(byte[] plainText) throws CryptoException {
+        logger.info("Encrypting with public key...");
         byte[] cipherText;
 
         if (getPublicKey() == null) {
@@ -117,9 +118,10 @@ public class CryptoAsymServiceFactory implements CryptoAsymService {
                     cipher.doFinal(plainText, i * blockSize, plainText.length - i * blockSize, cipherText, i * outputSize);
                 i++;
             }
+            logger.info("Success encrypt with public key");
         } catch (Exception e) {
-            logger.debug("Asymmetric cipher encryption error.");
-            throw new CryptoException("Asymmetric cipher encryption error.", e);
+            logger.error("Fail encrypt with public key", e);
+            throw new CryptoException("Fail encrypt with public key", e);
         }
         return cipherText;
     }
@@ -134,6 +136,7 @@ public class CryptoAsymServiceFactory implements CryptoAsymService {
      */
     @Override
     public byte[] decrypt(byte[] cipherText) throws CryptoException {
+        logger.info("Decrypting with private key...");
         ByteArrayOutputStream bout = null;
 
         if (getPrivateKey() == null) {
@@ -172,12 +175,14 @@ public class CryptoAsymServiceFactory implements CryptoAsymService {
             }
 
             success = true;
+            logger.info("Success decrypt with public key");
         } catch (Exception e) {
             exception = e;
         }
 
         if (!success) {
-            throw new CryptoException("Asymmetric cipher decryption error.", exception);
+            logger.error("Fail decrypt with public key");
+            throw new CryptoException("Fail decrypt with public key", exception);
         }
         return bout.toByteArray();
     }

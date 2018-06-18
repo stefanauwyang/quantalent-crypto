@@ -65,13 +65,13 @@ public class CryptoSymServiceFactory implements CryptoSymService {
                 return Cipher.getInstance(algorithm, provider);
             }
         } catch (NoSuchAlgorithmException e) {
-            logger.debug("Unable to get Cipher instance using {}.", algorithm);
+            logger.error("Unable to get Cipher instance using {}.", algorithm);
             throw new CryptoException("Unable to get Cipher instance using {}.", e);
         } catch (NoSuchProviderException e) {
-            logger.debug("Cipher provider error.");
+            logger.error("Cipher provider error.");
             throw new CryptoException("Cipher provider error.", e);
         } catch (Exception e) {
-            logger.debug("Cipher algorithm error.");
+            logger.error("Cipher algorithm error.");
             throw new CryptoException("Cipher algorithm error.", e);
         }
     }
@@ -86,20 +86,20 @@ public class CryptoSymServiceFactory implements CryptoSymService {
      */
     @Override
     public String encrypt(String plain, String password) {
-        logger.debug("Encrypting using AES...");
+        logger.info("Encrypting using AES...");
         if (password == null || password.length() == 0) throw new CryptoRuntimeException("Password not present");
         try {
             HashService hashService = HashServiceFactory.getInstance(Algorithm.HASH_SHA_256.getValue());
-            logger.debug("Calculate Sha256 from password");
+            logger.info("Calculate Sha256 from password");
             byte[] key = hashService.hash(password);
             Cipher cipher = getCipherInstance();
             SecretKey secretKey = new SecretKeySpec(key, algorithm);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] encrypted = cipher.doFinal(plain.getBytes(UTF_8));
-            logger.debug("Success encrypt using AES");
+            logger.info("Success encrypt using AES");
             return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
-            logger.debug("Fail encrypt using AES");
+            logger.error("Fail encrypt using AES");
             throw new CryptoRuntimeException("Not able to do AES encryption", e);
         }
     }
@@ -113,7 +113,7 @@ public class CryptoSymServiceFactory implements CryptoSymService {
      */
     @Override
     public String encrypt(String plain, byte[] password) {
-        logger.debug("Encrypting using AES...");
+        logger.info("Encrypting using AES...");
         if (password == null || password.length == 0) throw new CryptoRuntimeException("Password not present");
         try {
             Cipher cipher = Cipher.getInstance(algorithm);
@@ -123,10 +123,10 @@ public class CryptoSymServiceFactory implements CryptoSymService {
             SecretKey secretKey = new SecretKeySpec(passwordToBeUsed, algorithm);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] encrypted = cipher.doFinal(plain.getBytes(UTF_8));
-            logger.debug("Success encrypt using AES");
+            logger.info("Success encrypt using AES");
             return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
-            logger.debug("Fail encrypt using AES");
+            logger.error("Fail encrypt using AES");
             throw new CryptoRuntimeException("Not able to do AES encryption", e);
         }
     }
@@ -141,20 +141,20 @@ public class CryptoSymServiceFactory implements CryptoSymService {
      */
     @Override
     public String decrypt(String encrypted, String password) {
-        logger.debug("Decrypting using AES...");
+        logger.info("Decrypting using AES...");
         if (password == null || password.length() == 0) throw new CryptoRuntimeException("Password not present");
         try {
             HashService hashService = HashServiceFactory.getInstance(Algorithm.HASH_SHA_256.getValue());
-            logger.debug("Calculate Sha256 from password");
+            logger.info("Calculate Sha256 from password");
             byte[] key = hashService.hash(password);
             Cipher cipher = Cipher.getInstance(algorithm);
             SecretKey secretKey = new SecretKeySpec(key, algorithm);
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypted));
-            logger.debug("Success decrypt using AES");
+            logger.info("Success decrypt using AES");
             return new String(plain);
         } catch (Exception e) {
-            logger.debug("Fail decrypt using AES");
+            logger.error("Fail decrypt using AES");
             throw new CryptoRuntimeException("Not able to do AES decryption", e);
         }
     }
@@ -168,7 +168,7 @@ public class CryptoSymServiceFactory implements CryptoSymService {
      */
     @Override
     public String decrypt(String encrypted, byte[] password) {
-        logger.debug("Decrypting using AES...");
+        logger.info("Decrypting using AES...");
         if (password == null || password.length == 0) throw new CryptoRuntimeException("Password not present");
         try {
             Cipher cipher = Cipher.getInstance(algorithm);
@@ -178,10 +178,10 @@ public class CryptoSymServiceFactory implements CryptoSymService {
             SecretKey secretKey = new SecretKeySpec(passwordToBeUsed, algorithm);
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] plain = cipher.doFinal(Base64.getDecoder().decode(encrypted));
-            logger.debug("Success decrypt using AES");
+            logger.info("Success decrypt using AES");
             return new String(plain);
         } catch (Exception e) {
-            logger.debug("Fail decrypt using AES");
+            logger.error("Fail decrypt using AES");
             throw new CryptoRuntimeException("Not able to do AES decryption", e);
         }
     }
